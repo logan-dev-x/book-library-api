@@ -3,6 +3,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/logan-dev-x/book-library-api/internal/book"
 )
@@ -17,13 +18,13 @@ func NewSQLRepository(db *sql.DB) book.Repository {
 
 // Delete implements [book.Repository].
 func (s SQLRepository) Delete(id int) error {
-	_, err := s.db.Exec("DELETE FROM books WHERE id = ?", id)
+	_, err := s.db.Exec("DELETE FROM books WHERE id = ?;", id)
 	return err
 }
 
 // GetAll implements [book.Repository].
 func (s SQLRepository) GetAll() []book.Book {
-	row, _ := s.db.Query("SELECT * FROM books")
+	row, _ := s.db.Query("SELECT * FROM books;")
 	books := []book.Book{}
 	for row.Next() {
 		var b book.Book
@@ -33,6 +34,7 @@ func (s SQLRepository) GetAll() []book.Book {
 			&b.Title,
 			&b.ISBN,
 			&b.Description,
+			&b.PublishedAt,
 			&b.CreatedAt,
 			&b.UpdatedAt,
 		)
@@ -44,7 +46,7 @@ func (s SQLRepository) GetAll() []book.Book {
 
 // GetByID implements [book.Repository].
 func (s SQLRepository) GetByID(id int) (book.Book, error) {
-	row, err := s.db.Query("SELECT * FROM books WHERE id = ?", id)
+	row, err := s.db.Query("SELECT * FROM books WHERE id = ?;", id)
 	if err != nil {
 		return book.Book{}, err
 	}
@@ -56,6 +58,7 @@ func (s SQLRepository) GetByID(id int) (book.Book, error) {
 			&b.Description,
 			&b.Title,
 			&b.ISBN,
+			&b.PublishedAt,
 			&b.CreatedAt,
 			&b.UpdatedAt,
 		)
@@ -71,8 +74,8 @@ func (s SQLRepository) Save(b book.CreateBookInput) (book.Book, error) {
 	_, err := s.db.Exec(
 		`INSERT INTO books
 		(title, author, description, isbn, published_at, create_at, update_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		b.Title, b.Author, b.Description, b.ISBN, b.PublishedAt,
+		VALUES (?, ?, ?, ?, ?, ?, ?);`,
+		b.Title, b.Author, b.Description, b.ISBN, b.PublishedAt, time.Now(), time.Now(),
 	)
 	if err != nil {
 		return book.Book{}, err
@@ -81,10 +84,10 @@ func (s SQLRepository) Save(b book.CreateBookInput) (book.Book, error) {
 }
 
 // Update implements [book.Repository].
-func (s SQLRepository) Update(b book.UpdateBookInput) error {
+func (s SQLRepository) Update(id int, b book.UpdateBookInput) error {
 	_, err := s.db.Exec(
-		"UPDATE FROM books SET title = ?, description = ? WHERE id = ?",
-		b.Title, b.Description,
+		"UPDATE books SET title = ?, description = ?, update_at = ? WHERE id = ?;",
+		b.Title, b.Description, time.Now(), id,
 	)
 	return err
 }
