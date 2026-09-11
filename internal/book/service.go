@@ -38,3 +38,7 @@ func (s Service) Update(id int, book UpdateBookInput) error {
 
 	return s.repo.Update(b.ID, book)
 }
+
+func (s Service) Delete(id int) error {
+	return s.repo.Delete(id)
+}
