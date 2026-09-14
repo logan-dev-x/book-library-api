@@ -25,7 +25,10 @@ func main() {
 		switch r.Method {
 		case "POST":
 			h.Create(w, r)
+		case "GET":
+			h.GetAll(w, r)
 		}
 	})
+
 	log.Fatal(http.ListenAndServe(":7070", nil))
 }
