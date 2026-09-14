@@ -52,19 +52,26 @@ func (s SQLRepository) GetByID(id int) (book.Book, error) {
 	}
 	var b book.Book
 	for row.Next() {
+		var published, created, updated string
 		err := row.Scan(
 			&b.ID,
 			&b.Author,
 			&b.Description,
 			&b.Title,
 			&b.ISBN,
-			&b.PublishedAt,
-			&b.CreatedAt,
-			&b.UpdatedAt,
+			&published,
+			&created,
+			&updated,
 		)
 		if err != nil {
 			return book.Book{}, err
 		}
+		pConverted, _ := time.Parse(time.DateOnly, published)
+		cConverted, _ := time.Parse(time.DateTime, created)
+		uConverted, _ := time.Parse(time.DateTime, created)
+		b.PublishedAt = pConverted
+		b.CreatedAt = cConverted
+		b.UpdatedAt = uConverted
 	}
 	return b, nil
 }
@@ -75,7 +82,13 @@ func (s SQLRepository) Save(b book.CreateBookInput) (book.Book, error) {
 		`INSERT INTO books
 		(title, author, description, isbn, published_at, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?);`,
-		b.Title, b.Author, b.Description, b.ISBN, b.PublishedAt, time.Now(), time.Now(),
+		b.Title,
+		b.Author,
+		b.Description,
+		b.ISBN,
+		b.PublishedAt.Format(time.DateOnly),
+		time.Now(),
+		time.Now(),
 	)
 	if err != nil {
 		return book.Book{}, err
