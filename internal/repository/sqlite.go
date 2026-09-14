@@ -73,7 +73,7 @@ func (s SQLRepository) GetByID(id int) (book.Book, error) {
 func (s SQLRepository) Save(b book.CreateBookInput) (book.Book, error) {
 	res, err := s.db.Exec(
 		`INSERT INTO books
-		(title, author, description, isbn, published_at, create_at, update_at)
+		(title, author, description, isbn, published_at, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?);`,
 		b.Title, b.Author, b.Description, b.ISBN, b.PublishedAt, time.Now(), time.Now(),
 	)
