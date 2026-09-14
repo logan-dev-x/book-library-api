@@ -4,14 +4,14 @@ package book
 import "time"
 
 type Book struct {
-	ID          int
-	Title       string
-	Author      string
-	ISBN        string
+	ID int
+	Title,
+	Author,
+	ISBN,
 	Description string
-	PublishedAt time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	PublishedAt,
+	CreatedAt,
+	UpdatedAt time.Time
 }
 
 type CreateBookInput struct {
