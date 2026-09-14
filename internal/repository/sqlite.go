@@ -71,7 +71,7 @@ func (s SQLRepository) GetByID(id int) (book.Book, error) {
 
 // Save implements [book.Repository].
 func (s SQLRepository) Save(b book.CreateBookInput) (book.Book, error) {
-	_, err := s.db.Exec(
+	res, err := s.db.Exec(
 		`INSERT INTO books
 		(title, author, description, isbn, published_at, create_at, update_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?);`,
@@ -80,7 +80,15 @@ func (s SQLRepository) Save(b book.CreateBookInput) (book.Book, error) {
 	if err != nil {
 		return book.Book{}, err
 	}
-	return book.Book{}, nil
+	id, err := res.LastInsertId()
+	if err != nil {
+		return book.Book{}, err
+	}
+	newBook, err := s.GetByID(int(id))
+	if err != nil {
+		return book.Book{}, err
+	}
+	return newBook, nil
 }
 
 // Update implements [book.Repository].
