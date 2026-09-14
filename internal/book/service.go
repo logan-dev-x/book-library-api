@@ -24,8 +24,8 @@ func (s Service) GetAll() []Book {
 
 func (s Service) GetOne(id int) (Book, error) {
 	book, err := s.repo.GetByID(id)
-	if err != nil {
-		return Book{}, err
+	if err != nil || book == (Book{}) {
+		return Book{}, errors.New("book not found")
 	}
 	return book, nil
 }
@@ -40,5 +40,9 @@ func (s Service) Update(id int, book UpdateBookInput) error {
 }
 
 func (s Service) Delete(id int) error {
-	return s.repo.Delete(id)
+	b, err := s.GetOne(id)
+	if err != nil {
+		return err
+	}
+	return s.repo.Delete(b.ID)
 }
