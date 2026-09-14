@@ -30,5 +30,12 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/api/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "DELETE":
+			h.Delete(w, r)
+		}
+	})
+
 	log.Fatal(http.ListenAndServe(":7070", nil))
 }
