@@ -15,14 +15,14 @@ type Book struct {
 }
 
 type CreateBookInput struct {
-	Title       string
-	Author      string
-	ISBN        string
-	Description string
-	PublishedAt time.Time
+	Title       string    `json:"title"`
+	Author      string    `json:"author"`
+	ISBN        string    `json:"isbn"`
+	Description string    `json:"description"`
+	PublishedAt time.Time `json:"published_at"`
 }
 
 type UpdateBookInput struct {
-	Title       string
-	Description string
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
