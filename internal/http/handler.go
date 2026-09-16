@@ -15,6 +15,10 @@ type Handler struct {
 	Service book.Service
 }
 
+func NewHandler(service book.Service) Handler {
+	return Handler{service}
+}
+
 func (h Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {

@@ -13,29 +13,39 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("sqlite3", "books.db")
-	if err != nil {
-		log.Fatal(err)
-	}
+	repo := repository.NewSQLRepository(setupDB())
+	service := book.NewService(repo)
+	handler := myHttp.NewHandler(service)
+	router(handler)
+	run()
+}
 
-	s := book.NewService(repository.NewSQLRepository(db))
-	h := myHttp.Handler{Service: s}
+func run() {
+	log.Fatal(http.ListenAndServe(":7070", nil))
+}
 
+func router(handler myHttp.Handler) {
 	http.HandleFunc("/api/v1/books", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
-			h.Create(w, r)
+			handler.Create(w, r)
 		case "GET":
-			h.GetAll(w, r)
+			handler.GetAll(w, r)
 		}
 	})
 
 	http.HandleFunc("/api/v1/books/{id}", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "DELETE":
-			h.Delete(w, r)
+			handler.Delete(w, r)
 		}
 	})
+}
 
-	log.Fatal(http.ListenAndServe(":7070", nil))
+func setupDB() *sql.DB {
+	db, err := sql.Open("sqlite3", "books.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return db
 }
