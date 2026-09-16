@@ -12,6 +12,28 @@ type SQLRepository struct {
 	db *sql.DB
 }
 
+func (s SQLRepository) convert(row *sql.Rows, book *book.Book) {
+	for row.Next() {
+		var published, created, updated string
+		_ = row.Scan(
+			book.ID,
+			book.Author,
+			book.Description,
+			book.Title,
+			book.ISBN,
+			&published,
+			&created,
+			&updated,
+		)
+		pConverted, _ := time.Parse(time.DateOnly, published)
+		cConverted, _ := time.Parse(time.DateTime, created)
+		uConverted, _ := time.Parse(time.DateTime, created)
+		book.PublishedAt = pConverted
+		book.CreatedAt = cConverted
+		book.UpdatedAt = uConverted
+	}
+}
+
 func NewSQLRepository(db *sql.DB) book.Repository {
 	return SQLRepository{db: db}
 }
@@ -51,28 +73,7 @@ func (s SQLRepository) GetByID(id int) (book.Book, error) {
 		return book.Book{}, err
 	}
 	var b book.Book
-	for row.Next() {
-		var published, created, updated string
-		err := row.Scan(
-			&b.ID,
-			&b.Author,
-			&b.Description,
-			&b.Title,
-			&b.ISBN,
-			&published,
-			&created,
-			&updated,
-		)
-		if err != nil {
-			return book.Book{}, err
-		}
-		pConverted, _ := time.Parse(time.DateOnly, published)
-		cConverted, _ := time.Parse(time.DateTime, created)
-		uConverted, _ := time.Parse(time.DateTime, created)
-		b.PublishedAt = pConverted
-		b.CreatedAt = cConverted
-		b.UpdatedAt = uConverted
-	}
+	s.convert(row, &b)
 	return b, nil
 }
 
